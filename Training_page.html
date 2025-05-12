@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MarineFit</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Bangers&display=swap" rel="stylesheet" />
+  <style>
+    /* Prevent text selection and tap highlights */
+    * {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Prevent body scrolling */
+    body, html {
+      overflow: hidden;
+      height: 100%;
+    }
+    
+    .font-pacifico {
+      font-family: 'Pacifico', cursive;
+    }
+    .font-military {
+      font-family: 'Bangers', cursive;
+    }
+    
+    .workout-card {
+      height: 25vh;
+      min-height: 180px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 1rem;
+      transition: all 0.3s ease;
+      border: 1px solid #d9a441;
+    }
+    
+    /* Persistent highlight effect */
+    .workout-card.highlight {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    .workout-card.highlight .card-bg {
+      opacity: 0.6;
+    }
+    
+    /* Badge effect when card is active */
+    .workout-card:active .military-badge {
+      transform: scale(1.05);
+    }
+    
+    .card-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      opacity: 0.4;
+      z-index: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .card-content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+    }
+    
+    .tracker-container {
+      position: relative;
+      background-color: #f0f0f0;
+      border: 1px solid #d9a441;
+      padding-bottom: 3rem;
+    }
+    
+    .date-tooltip-container {
+      position: relative;
+      width: 100%;
+      height: 40px;
+      margin-top: 0.5rem;
+    }
+    
+    .date-tooltip {
+      position: relative;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      border: 1px solid #d9a441;
+      border-radius: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      width: 90%;
+      height: 40px;
+      z-index: 10;
+    }
+    
+    .date-tooltip-triangle {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-bottom: 8px solid white;
+      filter: drop-shadow(0 -2px 1px rgba(0,0,0,0.1));
+    }
+    
+    .mtxt {
+      padding-left: 1vh;
+    }
+
+    .ttimg {
+      border: 1px solid #1A1D23;
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+    }
+
+    .workout-scroll-container {
+      position: relative;
+      flex: 1;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin: 0 -15px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      border-top-right-radius: 30px;
+      border-top-left-radius: 30px;
+      border-top: 1px solid #1A1D23;
+      padding: 3%;
+      padding-bottom: 8vh;
+      box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    
+    main {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .military-badge {
+      background: linear-gradient(135deg, #22333b, #5e503f);
+      color: #f8f8f8;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      display: inline-block;
+      margin-bottom: 0.5rem;
+      border: 1px solid #d9a441;
+      transition: all 0.2s ease;
+    }
+    
+    .active-date {
+      background-color: #22333b;
+      color: white;
+      border: 2px dashed #d9a441;
+      box-shadow: 0 0 20px rgba(217, 164, 65, 0.6);
+      position: relative;
+      z-index: 2;
+    }
+    
+    .active-date::after {
+      content: '';
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-bottom: 8px solid white;
+      filter: drop-shadow(0 -2px 1px rgba(0,0,0,0.1));
+      z-index: 11;
+    }
+    
+    .nav-icon {
+      color: #22333b;
+    }
+    
+    footer {
+      flex: 1;
+      max-height: 8vh;
+      border-top-left-radius: 25px;
+      border-top-right-radius: 25px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      z-index: 100;
+      background: white;
+      padding: 5px;
+    }
+
+    /* New styles for card links */
+    .workout-card-link {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      margin-bottom: 1rem;
+    }
+    
+    .workout-card-link:hover .workout-card {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .workout-card-link:hover .card-bg {
+      opacity: 0.6;
+    }
+
+    @media (max-width: 375px) {
+      .date-tooltip {
+        width: 95%;
+      }
+      
+      .ttimg {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+      }
+      
+      .workout-card {
+        height: 30vh;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans flex flex-col min-h-screen">
+
+  <!-- Header -->
+  <header class="w-full px-4 py-4 bg-gradient-to-r from-[#22333b] to-[#5e503f]">
+    <h1 class="text-3xl font-pacifico text-[#d9a441]">MARINE-FIT</h1>
+  </header>
+
+  <!-- Main - non-scrollable -->
+  <main class="flex-1 px-4 overflow-hidden">
+
+    <!-- Tracker Section -->
+    <div class="tracker-container w-full p-4 rounded-xl shadow-md mb-4 mt-2">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-lg font-semibold text-[#22333b]">WEEKLY PROGRESS</span>
+        <span class="text-lg font-semibold text-[#22333b]">0/6</span>
+      </div>
+
+      <!-- Date Numbers -->
+      <div class="flex justify-between relative mb-4" id="dateContainer">
+        <!-- Dates will be inserted here by JavaScript -->
+      </div>
+      
+      <!-- Tooltip Container -->
+      <div class="date-tooltip-container">
+        <div class="date-tooltip" id="dateTooltip">
+          <img src="https://images.unsplash.com/photo-1549471013-1f5d4a90e9ff?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="Drill Sergeant" class="ttimg rounded-full" />
+          <span class="text-gray-800 font-medium font-military text-sm mtxt">DROP AND GIVE ME 20, RECRUIT!</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scrollable Workout Cards -->
+    <div class="workout-scroll-container" id="scrollContainer">
+      <!-- Card: Basic Workout -->
+      <a href="Beginner_exercise.html" class="workout-card-link">
+        <div class="workout-card bg-white shadow-md">
+          <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+          <div class="card-content">
+            <div class="flex-1 p-4 flex flex-col">
+              <span class="military-badge">Beginner</span>
+              <div class="mt-auto">
+                <h2 class="text-xl font-bold text-gray-800 mb-1 font-military">BOOTCAMP BASICS</h2>
+                <p class="text-gray-700 text-sm">Master the fundamentals of Marine-style home workouts</p>
+              </div>
+            </div>
+            <img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Instructor" class="w-24 h-full object-cover border-l border-[#d9a441]" />
+          </div>
+        </div>
+      </a>
+
+      <!-- Card: Intermediate Workout -->
+      <a href="Intermediate_exercise.html" class="workout-card-link">
+        <div class="workout-card bg-white shadow-md">
+          <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1517438322307-e67111335449?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+          <div class="card-content">
+            <div class="flex-1 p-4 flex flex-col">
+              <span class="military-badge">Intermediate</span>
+              <div class="mt-auto">
+                <h2 class="text-xl font-bold text-gray-800 mb-1 font-military">COMBAT CONDITIONING</h2>
+                <p class="text-gray-700 text-sm">Build strength and endurance with battle-ready exercises</p>
+              </div>
+            </div>
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Instructor" class="w-24 h-full object-cover border-l border-[#d9a441]" />
+          </div>
+        </div>
+      </a>
+
+      <!-- Card: Advanced Workout -->
+      <a href="Advanced_exercise.html" class="workout-card-link">
+        <div class="workout-card bg-white shadow-md">
+          <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+          <div class="card-content">
+            <div class="flex-1 p-4 flex flex-col">
+              <span class="military-badge">Advanced</span>
+              <div class="mt-auto">
+                <h2 class="text-xl font-bold text-gray-800 mb-1 font-military">SPEC OPS CHALLENGE</h2>
+                <p class="text-gray-700 text-sm">Push your limits with elite-level Marine training routines</p>
+              </div>
+            </div>
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Instructor" class="w-24 h-full object-cover border-l border-[#d9a441]" />
+          </div>
+        </div>
+      </a>
+
+      <!-- Additional workout card -->
+      <a href="Endurance_exercise.html" class="workout-card-link">
+        <div class="workout-card bg-white shadow-md">
+          <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1540979388789-6cee28a1cdc9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+          <div class="card-content">
+            <div class="flex-1 p-4 flex flex-col">
+              <span class="military-badge">Endurance</span>
+              <div class="mt-auto">
+                <h2 class="text-xl font-bold text-gray-800 mb-1 font-military">RUCK READINESS</h2>
+                <p class="text-gray-700 text-sm">Develop the stamina needed for sustained performance</p>
+              </div>
+            </div>
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Instructor" class="w-24 h-full object-cover border-l border-[#d9a441]" />
+          </div>
+        </div>
+      </a>
+    </div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <footer class="w-full bg-white border-t border-gray-300 py-3 flex justify-around items-center">
+    <div class="flex flex-col items-center">
+      <i class="fas fa-dumbbell text-xl nav-icon"></i>
+      <span class="text-xs mt-1 text-[#22333b]">Training</span>
+    </div>
+    <div class="flex flex-col items-center">
+      <i class="fas fa-chart-line text-xl nav-icon"></i>
+      <span class="text-xs mt-1 text-[#22333b]">Report</span>
+    </div>
+    <div class="flex flex-col items-center">
+      <i class="fas fa-user text-xl nav-icon"></i>
+      <span class="text-xs mt-1 text-[#22333b]">Profile</span>
+    </div>
+  </footer>
+
+  <script>
+    // Track currently highlighted card
+    let currentHighlight = null;
+    const scrollContainer = document.getElementById('scrollContainer');
+    let lastTouchY = 0;
+    
+    // Touch start handler
+    scrollContainer.addEventListener('touchstart', (e) => {
+      lastTouchY = e.touches[0].clientY;
+      highlightCardUnderTouch(e);
+    }, { passive: true });
+    
+    // Touch move handler
+    scrollContainer.addEventListener('touchmove', (e) => {
+      const touchY = e.touches[0].clientY;
+      const dy = touchY - lastTouchY;
+      lastTouchY = touchY;
+      
+      // Update highlight while scrolling
+      highlightCardUnderTouch(e);
+    }, { passive: true });
+    
+    // Touch end handler
+    scrollContainer.addEventListener('touchend', () => {
+      // Keep the last highlight until next interaction
+    }, { passive: true });
+    
+    function highlightCardUnderTouch(e) {
+      const touch = e.touches[0];
+      const touchedElement = document.elementFromPoint(touch.clientX, touch.clientY);
+      
+      // Check if we're touching a card that's not inside a link
+      const card = touchedElement?.closest('.workout-card:not(a .workout-card)');
+      
+      if (card) {
+        if (currentHighlight && currentHighlight !== card) {
+          currentHighlight.classList.remove('highlight');
+        }
+        if (!card.classList.contains('highlight')) {
+          card.classList.add('highlight');
+          currentHighlight = card;
+        }
+      } else if (currentHighlight) {
+        currentHighlight.classList.remove('highlight');
+        currentHighlight = null;
+      }
+    }
+
+    // Date Tracker Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const dateContainer = document.getElementById('dateContainer');
+      const today = new Date();
+      const currentDate = today.getDate();
+      const currentDay = today.getDay(); // 0 (Sun) to 6 (Sat)
+      
+      // Calculate the start of the week (Sunday)
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(currentDate - currentDay);
+      
+      // Generate dates for the week
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(startOfWeek);
+        date.setDate(startOfWeek.getDate() + i);
+        const dateNum = date.getDate();
+        const isToday = dateNum === currentDate;
+        
+        const dateElement = document.createElement('div');
+        dateElement.className = `w-10 h-10 flex items-center justify-center rounded-full font-bold ${
+          isToday ? 'active-date' : 'bg-gray-200 text-gray-800'
+        }`;
+        dateElement.textContent = dateNum;
+        
+        dateContainer.appendChild(dateElement);
+      }
+    });
+  </script>
+</body>
+</html>
